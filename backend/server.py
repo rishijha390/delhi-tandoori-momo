@@ -21,7 +21,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # MongoDB connection
-mongo_url = os.environ.get['MONGO_URL']
+mongo_url = os.environ.get("MONGO_URL")
+if not mongo_url:
+    raise RuntimeError("MONGO_URL environment variable is not set")
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'restaurant_db')]
 
