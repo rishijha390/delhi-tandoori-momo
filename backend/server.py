@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'restaurant_db')]
 
@@ -64,15 +64,19 @@ app.add_middleware(
 # Startup event - seed database
 @app.on_event("startup")
 async def startup_event():
-    logger.info("Starting up application...")
-    
-    # Check if database is empty, if so, seed it
-    menu_count = await db.menu_items.count_documents({})
-    if menu_count == 0:
-        logger.info("Database is empty. Seeding data...")
-        await seed_database(db)
-    else:
-        logger.info(f"Database already has {menu_count} menu items")
+    try:
+        logger.info("Starting up application...")
+
+        menu_count = await db.menu_items.count_documents({})
+        if menu_count == 0:
+            logger.info("Database is empty. Seeding data...")
+            await seed_database(db)
+        else:
+            logger.info(f"Database already has {menu_count} menu items")
+
+    except Exception as e:
+        logger.error(f"Startup DB error: {e}")
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
