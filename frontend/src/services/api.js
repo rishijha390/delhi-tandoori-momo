@@ -26,13 +26,18 @@ const handleError = (error) => {
 // Menu APIs
 export const menuAPI = {
   getCategories: async () => {
-    try {
-      const response = await api.get('/menu/categories');
-      return response.data;
-    } catch (error) {
-      handleError(error);
-    }
-  },
+  const response = await api.get('/menu/categories');
+
+  const data = response.data;
+
+  //  Normalize to array always
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.categories)) return data.categories;
+  if (Array.isArray(data.data)) return data.data;
+
+  return []; // fallback
+},
+
   
   getItems: async (category = null) => {
     try {
