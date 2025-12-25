@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL ||
+  "https://delhi-tandoori-momo.onrender.com";
+
 const API_BASE = `${BACKEND_URL}/api`;
 
 // Create axios instance
