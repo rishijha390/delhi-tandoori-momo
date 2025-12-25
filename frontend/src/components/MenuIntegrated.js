@@ -18,30 +18,40 @@ const MenuIntegrated = () => {
     fetchMenuCategories();
   }, []);
 
-  const fetchMenuCategories = async () => {
-    try {
-      setLoading(true);
+ const fetchMenuCategories = async () => {
+  try {
+    setLoading(true);
 
-      const data = await menuAPI.getCategories();
+    const response = await menuAPI.getCategories();
 
-      // ✅ HARD SAFETY CHECK
-      const categories = Array.isArray(data) ? data : [];
+    // 🔒 Normalize response safely
+    const categories = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.categories)
+      ? response.categories
+      : [];
 
-      setMenuCategories(categories);
+    // Ensure items is always an array
+    const safeCategories = categories.map((cat) => ({
+      ...cat,
+      items: Array.isArray(cat.items) ? cat.items : [],
+    }));
 
-      if (categories.length > 0) {
-        setActiveCategory(categories[0].id);
-      }
+    setMenuCategories(safeCategories);
 
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load menu');
-      toast.error('Failed to load menu');
-    } finally {
-      setLoading(false);
+    if (safeCategories.length > 0) {
+      setActiveCategory(safeCategories[0].id);
     }
-  };
+
+    setError(null);
+  } catch (err) {
+    console.error(err);
+    setError("Menu not available right now");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleAddToCart = (item) => {
     addToCart(item);
